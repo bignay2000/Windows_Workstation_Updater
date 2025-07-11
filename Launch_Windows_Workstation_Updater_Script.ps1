@@ -18,4 +18,4 @@ if (Test-Path -Path "$scriptDir/logs"){
 }
 
 
-& script_Functions/Script_Functions.ps1 2>&1 | tee-object -Append "$scriptDir/logs/$StartTime-Windows_Workstation_Updater-$Env:ComputerName.log"
+& Script_Functions.ps1 2>&1 | tee-object -Append "$scriptDir/logs/$StartTime-Windows_Workstation_Updater-$Env:ComputerName.log"

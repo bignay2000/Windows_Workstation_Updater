@@ -1,4 +1,3 @@
-#Ryan Naylor
 #Requires -Version 7.5.1
 $WarningPreference = "Stop";
 $ErrorActionPreference = "Stop";

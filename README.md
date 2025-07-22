@@ -2,7 +2,7 @@
 1. Windows 10 or Windows Server 2019 or newer required for Winget update
 2. Intended to be launched as administrator and human user to answer y/n questions.  
 3. Skips software if not installed.
-4. Some software is hard to automate the update, so instead this script will launch the application and then your expected to manually check for update.
+4. Some software is hard to automate the update, so instead this script will launch the application and then manually check for update.
 
 ## Dell
 1. Dell Support Assist requires an Administrator login, so Log into your on your laptop as admin.  Otherwise skip the Dell Support Assist when prompted.

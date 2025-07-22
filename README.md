@@ -1,4 +1,4 @@
-# PowerShell Script to update Winodws, Microsoft products via Windows Update, Applicaitons via Winget
+# PowerShell Script to update Windows, Microsoft products via Windows Update, Applications via Winget
 1. Windows 10 or Windows Server 2019 or newer required for Winget update
 2. Intended to be launched and human user to answer y/n questions.  
 3. Skips software if not installed. 

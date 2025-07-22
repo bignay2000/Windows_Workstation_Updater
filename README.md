@@ -1,16 +1,21 @@
-Windows 10 or Windows Server 2019 or newer required for Winget Functions
+# PowerShell Script to update Winodws, Microsoft products via Windows Update, Applicaitons via Winget
+1. Windows 10 or Windows Server 2019 or newer required for Winget update
+2. Intended to be launched and human user to answer y/n questions.  
+3. Skips software if not installed. 
 
+## Dell
 1. Dell Support Assist requires an Administrator login, so Log into your on your laptop as admin.  Otherwise skip the Dell Support Assist when prompted.
 2. Download "SupportAssist for Home PCs" (https://www.dell.com/support/contents/en-us/Category/product-support/self-support-knowledgebase/software-and-downloads/support-assist/) then home -> updates.  Install all dell updates
 3. reboot
-4. Launch powershell 7 (if not installed, launch powershell as administrator and install via "winget install Microsoft.PowerShell"
-5. Download and unzip the Windows Updater to Downloads
-6. Launch Powershell 7 as administrator
-7. Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-8. cd ~\downloads\Windows_Workstation_Updater
-9. .\Launch_Windows_Workstation_Updater_Script.ps1
-10. follow the y/n prompts.  
+## Launch
+1. Launch powershell 7 (if not installed, launch powershell as administrator and install via "winget install Microsoft.PowerShell"
+2. Download and unzip the Windows Updater to Downloads
+3. Launch Powershell 7 as administrator
+4. Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+5. cd ~\downloads\Windows_Workstation_Updater
+6. .\Launch_Windows_Workstation_Updater_Script.ps1
+7. follow the y/n prompts.  
 
 ## Known Issues
-Winget may find Adobe Reader and/or Adobe Acrobat updates, download an updater, but the adobe updater will fail to update. Need an alternative way to update Adobe Products.
-Winget may fail to install due to a dependancy with appx and powershell 7 cannot import-module appx.  "Import-Module Appx -usewindowspowershell" works to resolve this dependency.
+1. Winget may find Adobe Reader and/or Adobe Acrobat updates, download an updater, but the adobe updater will fail to update. Need an alternative way to update Adobe Products.
+2. Winget may fail to install due to a dependancy with appx and powershell 7 cannot import-module appx.  "Import-Module Appx -usewindowspowershell" works to resolve this dependency.

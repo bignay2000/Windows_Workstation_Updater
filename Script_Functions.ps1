@@ -1,4 +1,4 @@
-$ScriptVersion = '20250711'
+$ScriptVersion = '20250722'
 $Author = 'Ryan Naylor'
 $WarningPreference = "Stop";
 $ErrorActionPreference = "Stop";
@@ -26,22 +26,6 @@ Function Confirm_Administator
     }
 }
 
-Function Confirm_OS
-{
-    $CurrentComputerOS = Get-ComputerInfo | Select-Object WindowsProductName
-    Write-Output "Operating System: $CurrentComputerOS"
-    if ($CurrentComputerOS -like '*2016*')
-    {
-        Write-Output "ERROR: Windows Server 2016 found."
-        exit 1
-    }
-    elseif ($CurrentComputerOS -like '*2012*')
-    {
-        Write-Output "ERROR: Windows Server 2012 found."
-        exit 1
-    }
-}
-
 Function Environment_Details
 {
     Write-Output "Windows_Workstation_Updater by $Author"
@@ -65,25 +49,30 @@ Function Launch_Application
         [Parameter(Mandatory = $true)] [string] $application,
         [Parameter(Mandatory = $true)] [string] $proc
     )
-    Do
+    if (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\$proc.exe")
     {
-        $Answer = Read-Host -Prompt "Launch $application GUI? (y/n)"
-    }
-    Until ($Answer -eq 'y' -or $Answer -eq 'n')
-    If ($Answer -eq "n")
-    {
-        Write-Output "User chose not to Launch $application GUI"
-    }
-    else
-    {
-        Write-Output "Launching $application GUI"
-        Start-Process $proc
-        Start-Sleep 3
         Do
         {
-            $Answer = Read-Host -Prompt "Are you done with $application GUI? (y)"
+            $Answer = Read-Host -Prompt "Launch $application GUI? (y/n)"
         }
-        Until ($Answer -eq 'y')
+        Until ($Answer -eq 'y' -or $Answer -eq 'n')
+        If ($Answer -eq "n")
+        {
+            Write-Output "User chose not to Launch $application GUI"
+        }
+        else
+        {
+            Write-Output "Launching $application GUI"
+            Start-Process $proc
+            Start-Sleep 3
+            Do
+            {
+                $Answer = Read-Host -Prompt "Are you done with $application GUI? (y)"
+            }
+            Until ($Answer -eq 'y')
+        }
+    } else {
+        Write-Output "Did not find $application Installed."
     }
 }
 
@@ -267,55 +256,40 @@ Function UptimeInDays
 Function Windows_Update_Microsoft_Update
 {
     #https://woshub.com/pswindowsupdate-module/
-
     Do
     {
-        $Answer = Read-Host -Prompt 'Run Windows Update including Microsoft Products update? (y/n)'
+        $Answer = Read-Host -Prompt 'Download Windows Update including Microsoft Products? (y/n)'
     }
     Until ($Answer -eq 'y' -or $Answer -eq 'n')
     If ($Answer -eq "n")
     {
-        Write-Output "User chose not to run Windows Update including Microsoft Products update."
+        Write-Output "User chose not to run Windows Update including Microsoft Products."
     }
     else
     {
-        Write-Output "User chose run Windows Update including Microsoft Products update."
+        Write-Output "User chose run Windows Update including Microsoft Products."
         Powershell_Module_Install_Update 'PSWindowsUpdate'
         Write-Output "Scanning and Downloading for available updates..."
         Get-WindowsUpdate -MicrosoftUpdate -Download -AcceptAll
+        Do
+        {
+            $Answer = Read-Host -Prompt 'Install Windows Update including Microsoft Products? (y/n)'
+        }
+        Until ($Answer -eq 'y' -or $Answer -eq 'n')
+        If ($Answer -eq "n")
+        {
+            Write-Output "User chose not to install Windows Update including Microsoft Products."
+            exit 0
+        }
+        else
+        {
+            Write-Output "User chose to install updates."
+        }
         Write-Output "Installing available updates..."
         Install-WindowsUpdate -MicrosoftUpdate -AcceptAll
         Write-Output "Done: Windows Update including Microsoft Products update."
     }
 }
-
-#Function Windows_Workstation_Create_Scheduled_Task
-#{
-#    if (Get-ScheduledTask -TaskName 'Windows_Workstation_Updater')
-#    {
-#        Write-Output "Windows_Workstation_Updater already exists."
-#    }
-#    else
-#    {
-#        Write-Output "Creating Windows Workstation Scheduled Task"
-#        # Specify the trigger settings
-#        $triggers = @(
-#            New-ScheduledTaskTrigger -Daily -At 11:30
-#            New-ScheduledTaskTrigger -AtLogon
-#        )
-#
-#        $actions = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "$InstallDir\Launch_Windows_Workstation_Updater_Script.ps1"
-#
-#        #https://learn.microsoft.com/en-us/powershell/module/scheduledtasks/new-scheduledtasksettingsset?view=windowsserver2022-ps
-#        $settings = New-ScheduledTaskSettingsSet -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -RunOnlyIfNetworkAvailable -RunOnlyIfIdle -IdleDuration 00:02:00 -IdleWaitTimeout 02:00:00 -DontStopOnIdleEnd -ExecutionTimeLimit (New-TimeSpan -Hours 1)
-#
-#        $principals = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
-#
-#        Register-ScheduledTask -TaskName "Windows_Workstation_Updater" -Description "Windows_Workstation_Updater" -TaskPath "Windows_Workstation_Updater" -Action $actions -Trigger $triggers -Settings $settings -Principal $principals
-#
-#        Write-Output "DONE: Createing Windows Workstation Scheduled Task"
-#    }
-#}
 
 Function Winget_Error_IF_Major_Version_Found #TODO Make this faster by winget list as an input
 {
@@ -470,7 +444,7 @@ Function Winget_Update_all
     }
 }
 
-Function Winget_Update_Application_By_ID()
+Function Winget_Update_Application_By_ID
 {
     Param
     (
@@ -489,25 +463,42 @@ Function Winget_Version
     Write-output "---------------------------------------------------------------------------------------------------------------------------------------------"
 }
 
+Function Launch_Winget
+{
+    $CurrentComputerOS = Get-ComputerInfo | Select-Object WindowsProductName
+    Write-Output "Operating System: $CurrentComputerOS"
+    if ($CurrentComputerOS -like '*2016*')
+    {
+        Write-Output "Windows Server 2016 found."
+        Write-Output "Winget not supported on this OS."
+    }
+    elseif ($CurrentComputerOS -like '*2012*')
+    {
+        Write-Output "Windows Server 2012 found."
+        Write-Output "Winget not supported on this OS."
+    }
+    elseif ($CurrentComputerOS -like '*2008*')
+    {
+        Write-Output "Windows Server 2008 found."
+        Write-Output "Winget not supported on this OS."
+    }
+    else
+    {
+        Winget_Install_Or_Update
+        Winget_Functions
+        #Winget_Error_IF_Major_Version_Found_DotNet
+    }
+}
+
 #Startup -----------------------------------------
 Prompt_Windows_Active_Users
 Environment_Details
+Launch_Dell_Support_Assist_GUI
 Launch_Office_Updater_GUI
 Launch_Visual_Studio_Installer_GUI
-Launch_Dell_Support_Assist_GUI
 Launch_Application Edge msedge
 Launch_Application Chrome Chrome
-
-#Windows Updates
+Launch_Application Firefox firefox
 Windows_Update_Microsoft_Update
-
-#Winget Functions -----------------------------------------
-if (Confirm_OS)
-{
-    Winget_Install_Or_Update
-    Winget_Functions
-    #Winget_Error_IF_Major_Version_Found_DotNet
-}
-
-#Reboot
+Launch_Winget
 Prompt_Reboot

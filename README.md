@@ -1,7 +1,8 @@
 # PowerShell Script to update Windows, Microsoft products via Windows Update, Applications via Winget
 1. Windows 10 or Windows Server 2019 or newer required for Winget update
-2. Intended to be launched and human user to answer y/n questions.  
-3. Skips software if not installed. 
+2. Intended to be launched as administrator and human user to answer y/n questions.  
+3. Skips software if not installed.
+4. Some software is hard to automate the update, so instead script will launch the application and then your expected to manually click the update.
 
 ## Dell
 1. Dell Support Assist requires an Administrator login, so Log into your on your laptop as admin.  Otherwise skip the Dell Support Assist when prompted.

@@ -20,3 +20,4 @@
 ## Known Issues
 1. Winget may find Adobe Reader and/or Adobe Acrobat updates, download an updater, but the adobe updater will fail to update. Need an alternative way to update Adobe Products.
 2. Winget may fail to install due to a dependancy with appx and powershell 7 cannot import-module appx.  "Import-Module Appx -usewindowspowershell" works to resolve this dependency.
+3. Google has removed any easy cli update for Google Chrome, so the script launches Chrome and user expected to go to help update.

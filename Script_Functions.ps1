@@ -80,27 +80,26 @@ Function Launch_Dell_Support_Assist_GUI
 {
     if (systeminfo | findstr /l Dell)
     {
-        $application = "Dell Support Assist"
         Do
         {
-            $Answer = Read-Host -Prompt "Launch $application GUI? (y/n)"
+            $Answer = Read-Host -Prompt "Launch Dell Support Assist GUI? (y/n)"
         }
         Until ($Answer -eq 'y' -or $Answer -eq 'n')
         If ($Answer -eq "n")
         {
-            Write-Output "User chose not to Launch $application GUI"
+            Write-Output "User chose not to Launch Dell Support Assist GUI"
         }
         else
         {
-            Write-Output "Launching $application GUI"
+            Write-Output "Launching Dell Support Assist GUI"
             $ErrorActionPreference = 'Continue'
             Start-Process "shell:AppsFolder\$(Get-StartApps "SupportAssist" | Select-Object -ExpandProperty AppId)" -PassThru
             $ErrorActionPreference = 'Stop'
             Start-Sleep 5
-            Write-Output "Done: Launching $application GUI"
+            Write-Output "Done: Launching Dell Support Assist GUI"
             Do
             {
-                $Answer = Read-Host -Prompt "Are you done with $application GUI? (y)"
+                $Answer = Read-Host -Prompt "Are you done with Dell Support Assist GUI? (y)"
             }
             Until ($Answer -eq 'y')
         }
@@ -115,28 +114,26 @@ Function Launch_Office_Updater_GUI
 {
     if ( Test-Path "C:\Program Files\Common Files\microsoft shared\ClickToRun\OfficeC2RClient.exe" -PathType Leaf)
     {
-        $application = 'Microsoft Office Updater'
         Do
         {
-        $Answer = Read-Host -Prompt "Launch $application GUI? (y/n)"
+        $Answer = Read-Host -Prompt "Launch Microsoft Office Updater GUI? (y/n)"
         }
         Until ($Answer -eq 'y' -or $Answer -eq 'n')
         If ($Answer -eq "n")
         {
-        Write-Output "User chose not to Launch $application GUI"
+        Write-Output "User chose not to Launch Microsoft Office Updater GUI"
         }
         else
         {
-        Write-Output "Launching $application GUI"
+        Write-Output "Launching Microsoft Office Updater GUI"
         Start-Process "C:\Program Files\Common Files\microsoft shared\ClickToRun\OfficeC2RClient.exe" "/update user"
         Start-Sleep 3
         Do
         {
-        $Answer = Read-Host -Prompt "Are you done with $application GUI? (y)"
+        $Answer = Read-Host -Prompt "Are you done with Microsoft Office Updater GUI? (y)"
         }
         Until ($Answer -eq 'y')
         }
-        Write-Output "Done: Launching $application GUI"
     } else {
         Write-Output "Did not find Office Installed."
     }
@@ -144,9 +141,28 @@ Function Launch_Office_Updater_GUI
 
 Function Launch_Visual_Studio_Installer_GUI
 {
-    if ( Test-Path 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\setup.exe' -PathType Leaf)
+    if (Test-Path -Path 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\setup.exe' -PathType Leaf)
     {
-    Launch_Application 'Visual Studio Installer' 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\setup.exe'
+        Do
+        {
+            $Answer = Read-Host -Prompt "Launch Microsoft Visual Studio Installer GUI? (y/n)"
+        }
+        Until ($Answer -eq 'y' -or $Answer -eq 'n')
+        If ($Answer -eq "n")
+        {
+            Write-Output "User chose not to Launch Microsoft Visual Studio Installer GUI"
+        }
+        else
+        {
+            Write-Output "Launching Microsoft Visual Studio Installer GUI"
+            Start-Process 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\setup.exe'
+            Start-Sleep 3
+            Do
+            {
+                $Answer = Read-Host -Prompt "Are you done with Microsoft Visual Studio Installer GUI? (y)"
+            }
+            Until ($Answer -eq 'y')
+        }
     } else {
         Write-Output "Did not find Visual Studio Installed."
     }
@@ -212,35 +228,7 @@ Function Prompt_Windows_Active_Users
         {
             Write-Output "User chose to continue despite other users logged into this computer."
         }
-
     }
-}
-
-Function Sleeper
-{
-    Param
-    (
-        [Parameter(Mandatory = $true)] [string] $totalDuration,
-        [Parameter(Mandatory = $true)] [string] $sleepInterval
-    )
-    # Define the total duration in seconds
-    # Define the sleep interval in seconds
-    # Loop until the remaining time is greater than zero
-    while ($totalDuration -gt 0)
-    {
-        # Print the remaining time
-        Write-Host "Remaining time: $totalDuration seconds..."
-
-        # Sleep for the specified interval
-        Start-Sleep -Seconds $sleepInterval
-
-        # Decrease the remaining time by the sleep interval
-        $totalDuration -= $sleepInterval
-    }
-
-    # Print a triumphant message when the loop is done
-    Write-Host "Done Sleeping for $totalDuration seconds"
-
 }
 
 Function UptimeInDays

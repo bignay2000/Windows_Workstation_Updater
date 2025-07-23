@@ -454,7 +454,6 @@ Function Winget_Version
 Function Launch_Winget
 {
     $CurrentComputerOS = Get-ComputerInfo | Select-Object WindowsProductName
-    Write-Output "Operating System: $CurrentComputerOS"
     if ($CurrentComputerOS -like '*2016*')
     {
         Write-Output "Windows Server 2016 found."

@@ -1,4 +1,4 @@
-$ScriptVersion = '20250722'
+$ScriptVersion = '20250728'
 $Author = 'Ryan Naylor'
 $WarningPreference = "Stop";
 $ErrorActionPreference = "Stop";
@@ -11,6 +11,31 @@ Function Application_Exists
     )
 
     return [bool](Get-Command -Name $application -ErrorAction SilentlyContinue)
+}
+
+Function Script_Version_Age_Check
+{
+    $ParsedDate = [datetime]::ParseExact($ScriptVersion, 'yyyyMMdd', $null)
+    $CurrentDate = Get-Date
+    $ThresholdDate = $CurrentDate.AddDays(-365)
+
+    if($ParsedDate -lt $ThresholdDate)
+    {
+        Do
+        {
+            $Answer = Read-Host -Prompt "ScriptVersion: $ScriptVersion This script verison is older than 1 year.  Continue (y/n)"
+        }
+        Until ($Answer -eq 'y' -or $Answer -eq 'n')
+        If ($Answer -eq "n")
+        {
+            Write-Output "User chose not to continue."
+            exit 1
+        }
+        else
+        {
+            Write-Output "User chose to continue."
+        }
+    }
 }
 
 Function Confirm_Administator
@@ -30,7 +55,7 @@ Function Environment_Details
 {
     Write-Output "Windows_Workstation_Updater by $Author"
     Write-Output "Script Version: $ScriptVersion"
-    Write-Output "Date: $((Get-Date).ToString('MM-dd-yyyy_HH-mm-ss') )"
+    Write-Output "Date: $((Get-Date).ToString('yyyy-MM-dd_HH-mm-ss') )"
     Write-Output "Script Directory: $scriptDir"
     Write-output "User: $env:username"
     Write-output "Domain: $Env:UserDomain"
@@ -337,6 +362,7 @@ Function Winget_Functions
     elseif ($Answer -eq "y")
     {
         Write-Output "User chose to run Winget Functions"
+        Winget_Install_Or_Update
         Winget_list
         Winget_Update_all
         Winget_list
@@ -471,7 +497,6 @@ Function Launch_Winget
     }
     else
     {
-        Winget_Install_Or_Update
         Winget_Functions
         #Winget_Error_IF_Major_Version_Found_DotNet
     }
@@ -480,6 +505,7 @@ Function Launch_Winget
 #Startup -----------------------------------------
 Prompt_Windows_Active_Users
 Environment_Details
+Script_Version_Age_Check
 Launch_Dell_Support_Assist_GUI
 Launch_Office_Updater_GUI
 Launch_Visual_Studio_Installer_GUI

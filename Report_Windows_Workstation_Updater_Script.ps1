@@ -48,8 +48,6 @@ if (Test-Path -Path "$scriptDir/reports"){
     mkdir "$scriptDir/reports"
 }
 
-$outputCsv = "$scriptDir/reports/$StartTime-Windows_Workstation_Updater_Report.csv"
-
 # Ensure logs directory exists
 if (Test-Path "$scriptDir/logs")
 {
@@ -93,8 +91,8 @@ foreach ($logFile in $logFiles) {
 # Deduplicate by Host Name and Date
 $deduplicated = $results | Sort-Object -Property "Host Name" -Unique | Select-Object "Host Name", "OS Name", "System Model", "BIOS Version", "System Uptime In Days", "Script Version", "Run Date", "Log File"
 # Export to CSV
-$deduplicated | Export-Csv -Path $outputCsv -NoTypeInformation -Encoding UTF8
+$deduplicated | Export-Csv -Path "$scriptDir/reports/$StartTime-Windows_Workstation_Updater_Report.csv" -NoTypeInformation -Encoding UTF8
 
 Write-Output "Deduplicated log parsing complete."
-Write-Output "Output saved to $outputCsv"
+Write-Output "Output saved to $scriptDir/reports/$StartTime-Windows_Workstation_Updater_Report.csv"
 Write-Output "Done"

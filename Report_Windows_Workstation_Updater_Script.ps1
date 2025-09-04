@@ -41,19 +41,19 @@ function Convert-DateFormat {
 }
 
 # Define the file share path and output CSV
-if (Test-Path -Path "$scriptDir/reports"){
-    Write-Output "$scriptDir/reports already exists"
+if (Test-Path -Path "$scriptDir\reports"){
+    Write-Output "$scriptDir\reports already exists"
 } else {
-    Write-Output "Creating $scriptDir/reports directory"
-    mkdir "$scriptDir/reports"
+    Write-Output "Creating $scriptDir\reports directory"
+    mkdir "$scriptDir\reports"
 }
 
 # Ensure logs directory exists
-if (Test-Path "$scriptDir/logs")
+if (Test-Path "$scriptDir\logs")
 {
-    Write-Output "Successfully found $scriptDir/logs"
+    Write-Output "Successfully found $scriptDir\logs"
 } else {
-    Write-Output "Could not find $scriptDir/logs"
+    Write-Output "Could not find $scriptDir\logs"
     exit 1
 }
 
@@ -61,7 +61,7 @@ if (Test-Path "$scriptDir/logs")
 $results = @()
 
 # Get all log files in the share
-$logFiles = Get-ChildItem -Path "$scriptDir/logs" -Filter "*.log" | Sort-Object creationtime -Descending
+$logFiles = Get-ChildItem -Path "$scriptDir\logs" -Filter "*.log" | Sort-Object creationtime -Descending
 
 foreach ($logFile in $logFiles) {
     Write-Output "Working on $logFile..."
@@ -84,15 +84,39 @@ foreach ($logFile in $logFiles) {
         "System Uptime In Days" = $uptime
         "Script Version"        = $scriptVer
         "Run Date"              = $dateFormatted
-        "Log File"              = $logFile
+        "Log_File"              = $logFile
     }
 }
 
 # Deduplicate by Host Name and Date
-$deduplicated = $results | Sort-Object -Property "Host Name" -Unique | Select-Object "Host Name", "OS Name", "System Model", "BIOS Version", "System Uptime In Days", "Script Version", "Run Date", "Log File"
+$deduplicated = $results | Sort-Object -Property "Host Name" -Unique | Select-Object "Host Name", "OS Name", "System Model", "BIOS Version", "System Uptime In Days", "Script Version", "Run Date", "Log_File"
 # Export to CSV
-$deduplicated | Export-Csv -Path "$scriptDir/reports/$StartTime-Windows_Workstation_Updater_Report.csv" -NoTypeInformation -Encoding UTF8
+$deduplicated | Export-Csv -Path "$scriptDir\reports\$StartTime-Windows_Workstation_Updater_Report.csv" -NoTypeInformation -Encoding UTF8
 
 Write-Output "Deduplicated log parsing complete."
-Write-Output "Output saved to $scriptDir/reports/$StartTime-Windows_Workstation_Updater_Report.csv"
+Write-Output "Output saved to $scriptDir\reports\$StartTime-Windows_Workstation_Updater_Report.csv"
+
+
+# Ensure logs directory exists
+if (Test-Path "$scriptDir\logs\old")
+{
+    Write-Output "Successfully found $scriptDir\logs\old"
+} else {
+    Write-Output "Creating $scriptDir\logs\old directory"
+    mkdir "$scriptDir\logs\old"
+}
+
+Write-Output "Moving older log files to old, keeping the latest per Host Name"
+# Move files not in the keep list
+foreach ($logFile in $logFiles) {
+    $LogFileLeaf = Split-Path $logFile.Name -Leaf
+    Write-Output "Processing $LogFileLeaf..."
+    if ($deduplicated.Log_File -notcontains $LogFileLeaf) {
+        Write-Output "Moving $LogFileLeaf to $scriptDir\logs\old"
+        Move-Item -Path $logFile.FullName -Destination "$scriptDir\logs\old"
+    } else {
+        Write-Output "$LogFileLeaf is the current log file."
+    }
+}
+
 Write-Output "Done"

@@ -16,9 +16,8 @@
 5. cd ~\downloads\Windows_Workstation_Updater
 6. .\Launch_Windows_Workstation_Updater_Script.ps1
 7. follow the y/n prompts.
-
 ## Known Issues
 1. Has to be ran directly on the Windows Desktop as some installers may require interactive user.
 2. Winget may find Adobe Reader and/or Adobe Acrobat updates, download an updater, but the adobe updater will fail to update. Need an alternative way to update Adobe Products.
-3. Winget may fail to install due to a dependancy with appx and powershell 7 cannot import-module Appx.  "Import-Module Appx -usewindowspowershell" works to resolve this dependency.
-4. Google has removed any easy cli update for Google Chrome, so the script launches Chrome and user expected to go to manually go to help update.
+3. Winget may fail to install due to a dependency with appx and powershell 7 cannot import-module Appx.  "Import-Module Appx -usewindowspowershell" works to resolve this dependency.
+4. Google has removed any easy cli update for Google Chrome, so the script launches Chrome and user expected to go to manually go to help -> update.

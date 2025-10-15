@@ -1,4 +1,4 @@
-$ScriptVersion = '20250728'
+$ScriptVersion = '20251008'
 $Author = 'Ryan Naylor'
 $WarningPreference = "Stop";
 $ErrorActionPreference = "Stop";
@@ -55,7 +55,7 @@ Function Confirm_Administator
 {
     If (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator"))
     {
-        Write-Warning "Powershell is not running with Administrator rights"
+        Write-Output "Powershell is not running with Administrator rights"
         exit 1
     }
     else
@@ -247,11 +247,11 @@ Function Prompt_Windows_Active_Users
     query user
     if ((@(query user).Count - 1) -eq 1)
     {
-        Write-Host "Your the only user logged into this computer"
+        Write-Output "Your the only user logged into this computer"
     }
     else
     {
-        Write-Host "Your not the only user logged in"
+        Write-Output "Your not the only user logged in"
         Do
         {
             $Answer = Read-Host -Prompt 'Your not the only user logged into this computer.  Continue? (y/n)'
@@ -515,10 +515,118 @@ Function Launch_Winget
     }
 }
 
+Function Winget_Install_By_ID
+{
+    Param
+    (
+        [Parameter(Mandatory = $true)] [string] $ID
+    )
+    Do
+    {
+        $Answer = Read-Host -Prompt "Winget install $ID? (y/n)"
+    }
+    Until ($Answer -eq 'y' -or $Answer -eq 'n')
+    If ($Answer -eq "n")
+    {
+        Write-Output "User chose not to winget install $ID"
+    }
+    elseif ($Answer -eq "y")
+    {
+        Write-Output "-----------------------------------------"
+        Write-Output "Winget Install $ID"
+
+        winget install --accept-source-agreements --accept-package-agreements --silent --id $ID --log "$StartTime-Configure-Windows-$Env:ComputerName_Winget_$ID.log" --source winget
+
+        if ($ID -eq 'vim.vim')
+        {
+            Write-Output "Adding vim environment variable"
+            [System.Environment]::SetEnvironmentVariable('PATH', $env:PATH + ';C:\Program Files\Vim\vim91\', [System.EnvironmentVariableTarget]::Machine)
+        }
+
+        if ($ID -eq 'Git.Git')
+        {
+            Write-Output "Adding Git environment variable"
+            [System.Environment]::SetEnvironmentVariable('PATH', $env:PATH + ';C:\Program Files\Git\bin\', [System.EnvironmentVariableTarget]::Machine)
+            Write-Output "Update Git to use Default Webbrowser for authentication instead of embedded Internet Explorer"
+            git config --global credential.msauthFlow system
+        }
+    }
+}
+
+function BatteryReport {
+    param (
+        [string]$ReportPath = "$scriptDir/logs/$StartTime-Windows_Workstation_Updater-$Env:ComputerName-battery-report.html"
+    )
+
+    # Check for battery presence using Win32_Battery
+    $battery = Get-CimInstance -ClassName Win32_Battery
+
+    if ($battery) {
+        Write-Output "Battery detected. Generating report..."
+        try {
+            powercfg /batteryreport /output $ReportPath /xml
+            Write-Output "Battery report generated at: $ReportPath"
+        } catch {
+            Write-Error "Failed to generate battery report: $_"
+        }
+    } else {
+        Write-Output "No battery found on this system."
+    }
+}
+
+Function CheckForIISLogSizeGreaterThan100MB
+{
+    Write-Output "Checking if Microsoft IIS Web Server is installed."
+    $feature = Get-WindowsOptionalFeature -Online | Where-Object { $_.FeatureName -eq "IIS-WebServerRole" }
+
+    if ($feature.State -eq "Enabled")
+    {
+        Write-Output "Found Microsoft IIS Web Server is installed."
+        # Get all fixed drives
+        $drives = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Free -gt 0 }
+        foreach ($drive in $drives)
+        {
+            $root = $drive.Root
+            Write-Output "Searching for 'Websites' directories in $root..."
+            try
+            {
+                # Find all directories named "Websites"
+                $websitesDirs = Get-ChildItem -Depth 3 -Path $root -Recurse -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq "Websites" }
+
+                foreach ($dir in $websitesDirs)
+                {
+                    Write-Output "Found Websites directory: $( $dir.FullName )"
+
+                    # Search for *.log files larger than 100MB
+                    $largeLogs = Get-ChildItem -Path $dir.FullName -Recurse -Filter *.log -ErrorAction SilentlyContinue | Where-Object { $_.Length -gt 100MB }
+                    if ($largeLogs.Count -gt 0) {
+                        foreach ($log in $largeLogs)
+                        {
+                            Write-Output "Found log file greater than 100 MB: $( $log.FullName ) Size: $([math]::Round($log.Length / 1MB, 0) ) MB"
+                            Read-Host -Prompt "Hit Enter key to continue..."
+                        }
+                    } else {
+                        Write-Output "Did not find log files greater than 100 MB in directory."
+                    }
+                }
+            }
+            catch
+            {
+                Write-Error "Error searching in $root : $_"
+            }
+        }
+        Write-Output "Finished checking for log files greater than 100 MB from Microsoft IIS Websites directories."
+    } else {
+        Write-Output "Did not find Microsoft IIS Installed."
+    }
+}
+
 #Startup -----------------------------------------
 Display
 Prompt_Windows_Active_Users
 Environment_Details
+CheckForIISLogSizeGreaterThan100MB
+BatteryReport
 Script_Version_Age_Check
 Launch_Dell_Support_Assist_GUI
 Launch_Office_Updater_GUI
@@ -528,4 +636,5 @@ Launch_Application Chrome Chrome
 Launch_Application Firefox firefox
 Windows_Update_Microsoft_Update
 Launch_Winget
+Winget_Install_By_ID Omnissa.HorizonClient
 Prompt_Reboot

@@ -1,4 +1,4 @@
-$ScriptVersion = '20251008'
+$ScriptVersion = '20251017'
 $Author = 'Ryan Naylor'
 $WarningPreference = "Stop";
 $ErrorActionPreference = "Stop";

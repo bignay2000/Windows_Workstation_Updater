@@ -636,5 +636,5 @@ Launch_Application Chrome Chrome
 Launch_Application Firefox firefox
 Windows_Update_Microsoft_Update
 Launch_Winget
-Winget_Install_By_ID Omnissa.HorizonClient
+#Winget_Install_By_ID Omnissa.HorizonClient
 Prompt_Reboot

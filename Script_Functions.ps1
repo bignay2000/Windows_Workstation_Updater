@@ -553,6 +553,44 @@ Function Winget_Install_By_ID
     }
 }
 
+Function Winget_Install_By_Name
+{
+    Param
+    (
+        [Parameter(Mandatory = $true)] [string] $Name
+    )
+    Do
+    {
+        $Answer = Read-Host -Prompt "Winget install $Name? (y/n)"
+    }
+    Until ($Answer -eq 'y' -or $Answer -eq 'n')
+    If ($Answer -eq "n")
+    {
+        Write-Output "User chose not to winget install $Name"
+    }
+    elseif ($Answer -eq "y")
+    {
+        Write-Output "-----------------------------------------"
+        Write-Output "Winget Install $Name"
+
+        winget install --accept-source-agreements --accept-package-agreements --silent --id $Name --log "$StartTime-Configure-Windows-$Env:ComputerName_Winget_$Name.log" --source winget
+
+        if ($Name -eq 'vim.vim')
+        {
+            Write-Output "Adding vim environment variable"
+            [System.Environment]::SetEnvironmentVariable('PATH', $env:PATH + ';C:\Program Files\Vim\vim91\', [System.EnvironmentVariableTarget]::Machine)
+        }
+
+        if ($Name -eq 'Git.Git')
+        {
+            Write-Output "Adding Git environment variable"
+            [System.Environment]::SetEnvironmentVariable('PATH', $env:PATH + ';C:\Program Files\Git\bin\', [System.EnvironmentVariableTarget]::Machine)
+            Write-Output "Update Git to use Default Webbrowser for authentication instead of embedded Internet Explorer"
+            git config --global credential.msauthFlow system
+        }
+    }
+}
+
 function BatteryReport {
     param (
         [string]$ReportPath = "$scriptDir/logs/$StartTime-Windows_Workstation_Updater-$Env:ComputerName-battery-report.html"
@@ -636,5 +674,27 @@ Launch_Application Chrome Chrome
 Launch_Application Firefox firefox
 Windows_Update_Microsoft_Update
 Launch_Winget
-#Winget_Install_By_ID Omnissa.HorizonClient
+
+#Winget_Install_By_ID -ID '7zip.7zip'
+#Winget_Install_By_ID -ID 'Adobe.Acrobat.Reader.64-bit'
+#Winget_Install_By_ID -ID 'CoreyButler.NVMforWindows'
+#Winget_Install_By_ID -ID 'CrystalDewWorld.CrystalDiskInfo'
+#Winget_Install_By_ID -ID 'CrystalDewWorld.CrystalDiskMark'
+#Winget_Install_By_ID -ID 'Git.Git'
+#Winget_Install_By_ID -ID 'Google.Chrome'
+#winget_install_By_Name -Name 'Microsoft 365 Copilot'
+#Winget_Install_By_ID -ID 'Microsoft.Azure.StorageExplorer'
+#Winget_Install_By_ID -ID 'Microsoft.AzureDataStudio'
+#Winget_Install_By_ID -ID 'Microsoft.PowerShell'
+#Winget_Install_By_ID -ID 'Microsoft.SQLServerManagementStudio'
+#Winget_Install_By_ID -ID 'Microsoft.Sqlcmd'
+#Winget_Install_By_ID -ID 'Microsoft.VisualStudio.2022.Enterprise'
+#Winget_Install_By_ID -ID 'Microsoft.WindowsTerminal'
+#Winget_Install_By_ID -ID 'Notepad++.Notepad++'
+#Winget_Install_By_ID -ID 'Omnissa.HorizonClient'
+#Winget_Install_By_ID -ID 'ScooterSoftware.BeyondCompare.4'
+#Winget_Install_By_ID -ID 'Unity.UnityHub'
+#Winget_Install_By_ID -ID 'WinDirStat.WinDirStat'
+#Winget_Install_By_ID -ID 'vim.vim'
+
 Prompt_Reboot

@@ -1,7 +1,8 @@
 #Ryan Naylor
-#Requires -Version 7.5.2
+#Requires -Version 7.5.4
 $WarningPreference = "Stop";
 $ErrorActionPreference = "Stop";
+$PSNativeCommandUseErrorActionPreference = $true
 $StartTime = $((Get-Date).ToString('yyyy-MM-dd_HH-mm-ss') )
 Function ScriptDirectory {
     $Invocation = (Get-Variable MyInvocation -Scope 1).Value

@@ -1,7 +1,10 @@
-$ScriptVersion = '20251017'
+#Ryan Naylor
+#Requires -Version 7.5.4
+$ScriptVersion = '20260113'
 $Author = 'Ryan Naylor'
 $WarningPreference = "Stop";
 $ErrorActionPreference = "Stop";
+$PSNativeCommandUseErrorActionPreference = $true
 
 Function Display
 {
@@ -55,7 +58,7 @@ Function Confirm_Administator
 {
     If (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator"))
     {
-        Write-Output "Powershell is not running with Administrator rights"
+        Write-Output "ERROR: Powershell is not running with Administrator rights"
         exit 1
     }
     else
@@ -116,7 +119,7 @@ Function Launch_Application
 
 Function Launch_Dell_Support_Assist_GUI
 {
-    if (systeminfo | findstr /l Dell)
+    if (systeminfo | Select-String -Quiet -SimpleMatch 'Dell')
     {
         Do
         {
@@ -154,23 +157,23 @@ Function Launch_Office_Updater_GUI
     {
         Do
         {
-        $Answer = Read-Host -Prompt "Launch Microsoft Office Updater GUI? (y/n)"
+            $Answer = Read-Host -Prompt "Launch Microsoft Office Updater GUI? (y/n)"
         }
         Until ($Answer -eq 'y' -or $Answer -eq 'n')
         If ($Answer -eq "n")
         {
-        Write-Output "User chose not to Launch Microsoft Office Updater GUI"
+            Write-Output "User chose not to Launch Microsoft Office Updater GUI"
         }
         else
         {
-        Write-Output "Launching Microsoft Office Updater GUI"
-        Start-Process "C:\Program Files\Common Files\microsoft shared\ClickToRun\OfficeC2RClient.exe" "/update user"
-        Start-Sleep 3
-        Do
-        {
-        $Answer = Read-Host -Prompt "Are you done with Microsoft Office Updater GUI? (y)"
-        }
-        Until ($Answer -eq 'y')
+            Write-Output "Launching Microsoft Office Updater GUI"
+            Start-Process "C:\Program Files\Common Files\microsoft shared\ClickToRun\OfficeC2RClient.exe" "/update user"
+            Start-Sleep 3
+            Do
+            {
+                $Answer = Read-Host -Prompt "Are you done with Microsoft Office Updater GUI? (y)"
+            }
+            Until ($Answer -eq 'y')
         }
     } else {
         Write-Output "Did not find Office Installed."
@@ -244,6 +247,7 @@ Function Prompt_Reboot
 
 Function Prompt_Windows_Active_Users
 {
+    $PSNativeCommandUseErrorActionPreference = $false
     query user
     if ((@(query user).Count - 1) -eq 1)
     {
@@ -267,6 +271,7 @@ Function Prompt_Windows_Active_Users
             Write-Output "User chose to continue despite other users logged into this computer."
         }
     }
+    $PSNativeCommandUseErrorActionPreference = $true
 }
 
 Function UptimeInDays
@@ -324,9 +329,9 @@ Function Winget_Error_IF_Major_Version_Found #TODO Make this faster by winget li
         [Parameter(Mandatory = $true)] [string] $application,
         [Parameter(Mandatory = $true)] [string] $MajorVersion
     )
-    
+
     $applicationList = winget list | findstr $application
-    
+
     if ((Write-Output $applicationList | findstr /l (" " + "$MajorVersion" + ".")) -And (Write-Output $applicationList | findstr /l ("." + "$MajorVersion")))
     {
         Write-Output $applicationList
@@ -492,6 +497,7 @@ Function Winget_Version
 
 Function Launch_Winget
 {
+    $PSNativeCommandUseErrorActionPreference = $false
     $CurrentComputerOS = Get-ComputerInfo | Select-Object WindowsProductName
     if ($CurrentComputerOS -like '*2016*')
     {
@@ -513,6 +519,7 @@ Function Launch_Winget
         Winget_Functions
         #Winget_Error_IF_Major_Version_Found_DotNet
     }
+    $PSNativeCommandUseErrorActionPreference = $true
 }
 
 Function Winget_Install_By_ID

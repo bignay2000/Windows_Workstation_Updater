@@ -39,7 +39,7 @@ Function Script_Version_Age_Check
     {
         Do
         {
-            $Answer = Read-Host -Prompt "ScriptVersion: $ScriptVersion This script verison is older than 1 year.  Continue (y/n)"
+            $Answer = Read-Host -Prompt "ScriptVersion: $ScriptVersion This script version is older than 1 year.  Continue (y/n)"
         }
         Until ($Answer -eq 'y' -or $Answer -eq 'n')
         If ($Answer -eq "n")

@@ -1,6 +1,6 @@
 #Ryan Naylor
 #Requires -Version 7.5.4
-$ScriptVersion = '20260113'
+$ScriptVersion = '20260403'
 $Author = 'Ryan Naylor'
 $WarningPreference = "Stop";
 $ErrorActionPreference = "Stop";
@@ -310,7 +310,7 @@ Function Windows_Update_Microsoft_Update
         If ($Answer -eq "n")
         {
             Write-Output "User chose not to install Windows Update including Microsoft Products."
-            exit 0
+            return
         }
         else
         {

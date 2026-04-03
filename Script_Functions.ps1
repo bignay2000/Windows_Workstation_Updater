@@ -600,7 +600,7 @@ Function Winget_Install_By_Name
 
 function BatteryReport {
     param (
-        [string]$ReportPath = "$scriptDir/logs/$StartTime-Windows_Workstation_Updater-$Env:ComputerName-battery-report.html"
+        [string]$ReportPath = "$scriptDir/logs/$StartTime-Windows_Workstation_Updater-$Env:ComputerName-battery-report.xml"
     )
 
     # Check for battery presence using Win32_Battery

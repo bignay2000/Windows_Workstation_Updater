@@ -251,14 +251,14 @@ Function Prompt_Windows_Active_Users
     query user
     if ((@(query user).Count - 1) -eq 1)
     {
-        Write-Output "Your the only user logged into this computer"
+        Write-Output "You are the only user logged into this computer"
     }
     else
     {
-        Write-Output "Your not the only user logged in"
+        Write-Output "You are not the only user logged in"
         Do
         {
-            $Answer = Read-Host -Prompt 'Your not the only user logged into this computer.  Continue? (y/n)'
+            $Answer = Read-Host -Prompt 'You are not the only user logged into this computer.  Continue? (y/n)'
         }
         Until ($Answer -eq 'y' -or $Answer -eq 'n')
         If ($Answer -eq "n")
@@ -580,7 +580,7 @@ Function Winget_Install_By_Name
         Write-Output "-----------------------------------------"
         Write-Output "Winget Install $Name"
 
-        winget install --accept-source-agreements --accept-package-agreements --silent --id $Name --log "$StartTime-Configure-Windows-$Env:ComputerName_Winget_$Name.log" --source winget
+        winget install --accept-source-agreements --accept-package-agreements --silent --name $Name --log "$StartTime-Configure-Windows-$Env:ComputerName_Winget_$Name.log" --source winget
 
         if ($Name -eq 'vim.vim')
         {
